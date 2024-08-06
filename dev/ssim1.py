@@ -7,8 +7,12 @@ import matplotlib.pyplot as plt
 def resize_image(image, size):
     return cv2.resize(image, size, interpolation=cv2.INTER_AREA)
 
-image1 = "../image2/image3.png"
-image2 = "../image2/image4.png"
+# image1 = "../image/image3.png"
+# image2 = "../image/image4.png"
+# image1 = "../image/test1_1.jpg"
+# image2 = "../image/test1_2.jpg"
+image1 = "../image/test3_1.jpg"
+image2 = "../image/test3_2.jpg"
 
 
 # 画像をグレースケールで読み込む
@@ -29,7 +33,7 @@ ssim_score, ssim_map = ssim(img1, img2, full=True)
 smoothed_ssim_map = cv2.GaussianBlur(ssim_map, (5, 5), 0)
 
 # 2値化
-threshold = 0.2
+threshold = 0.4
 binary_diff = (smoothed_ssim_map < threshold).astype(np.uint8) * 255
 
 # ノイズの除去

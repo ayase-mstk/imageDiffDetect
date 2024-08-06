@@ -17,7 +17,7 @@ def align_images(image1, image2):
     # 対応する特徴点の取得
     points1 = np.zeros((len(matches), 2), dtype=np.float32)
     points2 = np.zeros((len(matches), 2), dtype=np.float32)
-                                                
+
     for i, match in enumerate(matches):
         points1[i, :] = keypoints1[match.queryIdx].pt
         points2[i, :] = keypoints2[match.trainIdx].pt
@@ -37,7 +37,7 @@ def remove_noise(threshold):
     kernel = np.ones((5, 5), np.uint8)
 
     # モルフォロジー演算（オープニング）
-    opened = cv2.morphologyEx(thresholded, cv2.MORPH_OPEN, kernel)
+    opened = cv2.morphologyEx(threshold, cv2.MORPH_OPEN, kernel)
 
     # モルフォロジー演算（クロージング）
     closed = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, kernel)
