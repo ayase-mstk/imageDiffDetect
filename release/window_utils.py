@@ -3,18 +3,30 @@ import numpy as np
 import main
 
 def on_mouse(event, x, y, flags, param):
-    image, diff_list = param
+    image1, image2, diff_list = param
 
     if event == cv2.EVENT_MOUSEMOVE:
         for diff in diff_list:
             dx, dy, dw, dh = diff
             if dx < x < dx + dw and dy < y < dy + dh:
-                roi = image[dy:dy+dh, dx:dx+dw]
+                roi = image1[dy:dy+dh, dx:dx+dw]
                 zoomed = cv2.resize(roi, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
                 cv2.imshow('Zoomed', zoomed)
                 return
+        cv2.destroyWindow('Zoomed')
 
-    cv2.destroyWindow('Zoomed')
+
+    if event == cv2.EVENT_LBUTTONDOWN:
+        for diff in diff_list:
+            dx, dy, dw, dh = diff
+            if dx < x < dx + dw and dy < y < dy + dh:
+                # クリックされた赤枠の部分をもう一つの画像から切り出す
+                roi = image2[dy:dy+dh, dx:dx+dw]
+                cv2.imshow('Matched Region', roi)
+                return
+        cv2.destroyWindow('Matched Region')
+
+
 
 
 def displayGrayScale(img1, img2):

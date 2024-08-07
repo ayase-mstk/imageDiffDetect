@@ -63,7 +63,7 @@ def outputDiff(path1, path2):
     cv2.imwrite(os.path.join(OUTPUT_PATH, 'circle_' + path1), circle_img)
 
     # イベント登録
-    cv2.setMouseCallback(WINDOW_NAME, win_utils.on_mouse, param=(circle_img, diff_list))
+    cv2.setMouseCallback(WINDOW_NAME, win_utils.on_mouse, param=(circle_img, img2, diff_list))
 
     # 画像表示
     win_utils.displayImage(circle_img)
