@@ -60,8 +60,8 @@ def alignImage(img1, img2):
     keypoints1, descriptors1 = detector.detectAndCompute(img1, None)
     keypoints2, descriptors2 = detector.detectAndCompute(img2, None)
 
-    match_img = cv2.drawKeypoints(img1, keypoints1, None, color=(0,255,0), flags=0)
-    cv2.imshow('keypoints', match_img)
+    #match_img = cv2.drawKeypoints(img1, keypoints1, None, color=(0,255,0), flags=0)
+    #cv2.imshow('keypoints', match_img)
                     
     # 特徴量のマッチング
     bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
@@ -181,3 +181,19 @@ def markCircle(img1, closed_img):
 
     #画像を生成
     return img1_color, diff_list
+
+
+
+def calcBalancedSize(img, max_size=800):
+    # 画像の元のサイズを取得
+    height, width = img.shape[:2]
+
+    # 長い方がmax_sizeになるようにリサイズ比を計算
+    if width > height:
+        new_width = max_size
+        new_height = int((new_width / width) * height)
+    else:
+        new_height = max_size
+        new_width = int((new_height / height) * width)
+
+    return new_height, new_width

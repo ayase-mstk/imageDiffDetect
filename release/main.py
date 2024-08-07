@@ -9,6 +9,7 @@ import diff_detect_library as dd
 CWD = os.path.dirname(__file__)
 OUTPUT_PATH = os.path.join(CWD, "output")
 IMG_DIR = os.path.abspath(os.path.join(CWD, "../image/"))
+WINDOW_NAME = "DIFF_IMAGE"
 
 
 def outputDiff(path1, path2):
@@ -16,8 +17,18 @@ def outputDiff(path1, path2):
     ori1 = cv2.imread(os.path.join(IMG_DIR, path1))
     ori2 = cv2.imread(os.path.join(IMG_DIR, path2))
 
+    # window 作成
+    cv2.namedWindow(WINDOW_NAME)
+
+    # window size 指定
+    window_height, window_width = img_utils.calcBalancedSize(ori1)
+    cv2.resizeWindow(WINDOW_NAME, window_width, window_height)
+    # img resize
+    img1 = cv2.resize(ori1, (window_width, window_height), interpolation=cv2.INTER_LINEAR)
+    img2 = cv2.resize(ori2, (window_width, window_height), interpolation=cv2.INTER_LINEAR)
+
     # noise 除去
-    img1, img2 = img_utils.removeNoiseBefore(ori1, ori2)
+    img1, img2 = img_utils.removeNoiseBefore(img1, img2)
 
     # gray scale
     img1, img2 = img_utils.CIEXYZ(img1, img2)
@@ -34,7 +45,7 @@ def outputDiff(path1, path2):
     # ヒストグラム均質化
     #img1, img2 = img_utils.equalizeHistogram(img1, img2)
 
-    win_utils.displaySideBySide(img1, img2)
+    #win_utils.displaySideBySide(img1, img2)
 
     # 差分検出
     diff_img = dd.diffDetect(img1, img2)
@@ -52,8 +63,7 @@ def outputDiff(path1, path2):
     cv2.imwrite(os.path.join(OUTPUT_PATH, 'circle_' + path1), circle_img)
 
     # イベント登録
-    cv2.namedWindow('DIFF_IMAGE')
-    cv2.setMouseCallback('DIFF_IMAGE', win_utils.on_mouse, param=(circle_img, diff_list))
+    cv2.setMouseCallback(WINDOW_NAME, win_utils.on_mouse, param=(circle_img, diff_list))
 
     # 画像表示
     win_utils.displayImage(circle_img)

@@ -10,7 +10,7 @@ def diffDetect(img1, img2):
     clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
     img1 = clahe.apply(img1)
     img2 = clahe.apply(img2)
-    win_utils.displaySideBySide(img1, img2)
+    #win_utils.displaySideBySide(img1, img2)
 
     #画像を引き算
     img_diff = cv2.absdiff(img1, img2)

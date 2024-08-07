@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import main
 
 def on_mouse(event, x, y, flags, param):
     image, diff_list = param
@@ -14,9 +15,6 @@ def on_mouse(event, x, y, flags, param):
                 return
 
     cv2.destroyWindow('Zoomed')
-
-
-
 
 
 def displayGrayScale(img1, img2):
@@ -68,6 +66,6 @@ def displaySideBySide(img1, img2):
 
 def displayImage(img):
     # 結合した画像を表示
-    cv2.imshow('DIFF_IMAGE', img)
+    cv2.imshow(main.WINDOW_NAME, img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
