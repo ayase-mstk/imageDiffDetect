@@ -42,38 +42,6 @@ def highlightDiff(img1, closed_img):
     #cv2.imwrite(CWD + '/output/03_diff_center.png', np.clip(im_diff_center, 0, 255))
 
 
-
-def markCircle(img1, closed_img):
-    min_area = 51
-    min_size = 10 
-    #輪郭を検出
-    contours, hierarchy = cv2.findContours(closed_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    #img1_color = cv2.cvtColor(img1, cv2.COLOR_GRAY2BGR)
-    img1_color = img1
-
-    # グルーピング処理
-    grouped_contours = []
-    for cnt in contours:
-        if cv2.contourArea(cnt) > min_area:
-            grouped_contours.append(cnt)
-
-    # 閾値以上の差分を円で囲い,差分のリストを作成
-    diff_list = []
-    #for _, cnt in enumerate(contours):
-    for cnt in grouped_contours:
-        (x, y), radius = cv2.minEnclosingCircle(cnt)
-        center = (int(x), int(y))
-        radius = int(radius)
-        area = cv2.contourArea(cnt)
-        if area > min_area and radius > min_size // 2:
-            cv2.circle(img1_color, center, radius, (0, 255, 0), 3)
-            diff_list.append((int(x-radius), int(y-radius), int(radius*2), int(radius*2)))
-
-    #画像を生成
-    return img1_color, diff_list
-
-
 def markShape(img1, closed_img, shape='rounded_rect'):
     contours, _ = cv2.findContours(closed_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     #img1_color = cv2.cvtColor(img1, cv2.COLOR_GRAY2BGR)
