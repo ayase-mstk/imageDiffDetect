@@ -50,7 +50,7 @@ def on_zoomed_mouse(event, x, y, flags, param):
 
 
 
-def displaySideBySide(img1, img2):
+def displaySideBySide(img1, img2, name='SideBySide'):
     h1, w1 = img1.shape[:2]
     h2, w2 = img2.shape[:2]
             
@@ -70,15 +70,15 @@ def displaySideBySide(img1, img2):
     combined = np.hstack((img1, img2))
 
     # 結果を表示
-    cv2.imshow('Side by Side', combined)
+    cv2.imshow(name, combined)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
 
 
-def displayImage(img):
+def displayImage(img, name=main.WINDOW_NAME):
     while True:
-        cv2.imshow(main.WINDOW_NAME, img)
+        cv2.imshow(name, img)
         if cv2.waitKey(1) & 0xFF == 27:
             break
     cv2.destroyAllWindows()
