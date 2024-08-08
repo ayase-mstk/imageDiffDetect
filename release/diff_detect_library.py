@@ -33,7 +33,7 @@ def sandwichDiffDetect(img1, img2):
     img_diff = cv2.absdiff(img1, img2)
 
     #2値化
-    under_thresh = 105
+    under_thresh =80 
     upper_thresh = 145
     maxValue = 255
     th, drop_back = cv2.threshold(img_diff, under_thresh, maxValue, cv2.THRESH_BINARY)
@@ -41,8 +41,8 @@ def sandwichDiffDetect(img1, img2):
     img_th = np.minimum(drop_back, clarify_born)
 
     # 黒い部分はマスクする
-    mask = (img1 == 0).astype(np.uint8)
-    img_th[mask == 1] = 0
+    #mask = (img1 == 0).astype(np.uint8)
+    #img_th[mask == 1] = 0
 
     return img_th
 
@@ -51,7 +51,14 @@ def adaptiveDiffDetect(img1, img2):
     img_diff = cv2.absdiff(img1, img2)
 
     #2値化
-    img_th = cv2.adaptiveThreshold(img_diff, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 51, 20)
+    img_th = cv2.adaptiveThreshold(
+            img_diff,
+            255,
+            cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+            cv2.THRESH_BINARY_INV,
+            blockSize=51,
+            C=12
+    )
 
     # 黒い部分はマスクする
     mask = (img1 == 0).astype(np.uint8)

@@ -103,43 +103,49 @@ def splitToSegment(img):
 
     # 画面の分割
     segments = []
-    h_segments = np.array_split(img, 4, axis=0)
+    h_segments = np.array_split(img, 5, axis=0)
     for seg in h_segments:
-        segments.extend(np.array_split(seg, 4, axis=1))
+        segments.extend(np.array_split(seg, 5, axis=1))
 
     return segments
 
-def histogramEqualization(img, alpha):
-    # ヒストグラム平坦化
+
+def adjustContrast(img, alpha):
+    # コントラスト調整
     adjusted = cv2.convertScaleAbs(img, alpha=alpha, beta=0)
     return adjusted
-    #clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
-    #img1 = clahe.apply(img1)
-    #img2 = clahe.apply(img2)
-    #win_utils.displaySideBySide(img1, img2)
 
-def adjustContrast(img):
+
+def adjustContrastBySegments(img):
     segments = splitToSegment(img)
     #segments2 = splitToSegment(img2)
 
     adjusted_segments = []
     for i, segment in enumerate(segments):
-        if i % 2 == 0:
-            # 外光と仮定してコントラストを下げる
-            adjusted_segments.append(histogramEqualization(segment, alpha=0.8))
+        # セグメントの平均輝度を計算
+        avg_brightness = np.mean(segment)
+
+        if avg_brightness > 200:
+            # 外光と仮定してコントラストをかなり下げる
+            adjusted_segments.append(adjustContrast(segment, alpha=0.5))
+        elif avg_brightness > 90:
+            # 比較的明るい場所と仮定してコントラストを少し下げる
+            adjusted_segments.append(adjustContrast(segment, alpha=0.8))
+        elif avg_brightness > 50:
+            # 室内部分と仮定してコントラストを少し上げる
+            adjusted_segments.append(adjustContrast(segment, alpha=1.2))
         else:
-            # 室内部分と仮定してコントラストを上げる
-            adjusted_segments.append(histogramEqualization(segment, alpha=1.2))
+            # 室内のくらい部分と仮定してコントラストを少し上げる
+            adjusted_segments.append(adjustContrast(segment, alpha=1.5))
 
     # 調整後のセグメント結合
     adjusted_img = np.vstack([
-        np.hstack(adjusted_segments[i*4:(i+1)*4])
-        for i in range(4)
+        np.hstack(adjusted_segments[i*5:(i+1)*5])
+        for i in range(5)
     ])
 
     return adjusted_img
 
+
 def adjustContrastImages(img1, img2):
-    return adjustContrast(img1), adjustContrast(img2)
-
-
+    return adjustContrastBySegments(img1), adjustContrastBySegments(img2)

@@ -9,7 +9,7 @@ def edgeEnhance(img1, img2):
 
 def morphologyRemoveNoise(binary_mask):
     # ノイズ除去のためのカーネル（サイズは適宜調整）
-    kernel = np.ones((4, 4), np.uint8)
+    kernel = np.ones((3, 3), np.uint8)
 
     # モルフォロジー演算（オープニング）
     opened = cv2.morphologyEx(binary_mask, cv2.MORPH_OPEN, kernel)
