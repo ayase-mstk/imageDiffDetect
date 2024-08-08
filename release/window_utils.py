@@ -2,34 +2,55 @@ import cv2
 import numpy as np
 import main
 
+
+ZOOM_WINDOW_NAME = 'Zoomed'
+
 def on_mouse(event, x, y, flags, param):
-    image1, image2, diff_list = param
+    original_image, image1, image2, diff_list = param
 
-    if event == cv2.EVENT_MOUSEMOVE:
-        for diff in diff_list:
-            dx, dy, dw, dh = diff
-            if dx < x < dx + dw and dy < y < dy + dh:
-                roi = image1[dy:dy+dh, dx:dx+dw]
-                zoomed = cv2.resize(roi, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
-                cv2.imshow('Zoomed', zoomed)
-                return
-        cv2.destroyWindow('Zoomed')
-
-
+    # 画像を押したら赤枠の拡大画像を表示
     if event == cv2.EVENT_LBUTTONDOWN:
         for diff in diff_list:
             dx, dy, dw, dh = diff
             if dx < x < dx + dw and dy < y < dy + dh:
-                # クリックされた赤枠の部分をもう一つの画像から切り出す
-                roi = image2[dy:dy+dh, dx:dx+dw]
-                cv2.imshow('Matched Region', roi)
+                zoomed = original_image[dy:dy+dh, dx:dx+dw].copy()
+                zoomed2 = image2[dy:dy+dh, dx:dx+dw]
+                zoomed = cv2.resize(zoomed, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
+                zoomed2 = cv2.resize(zoomed2, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
+                cv2.imshow(ZOOM_WINDOW_NAME, zoomed)
+                cv2.setMouseCallback(ZOOM_WINDOW_NAME, on_zoomed_mouse, [zoomed, zoomed2])
                 return
-        cv2.destroyWindow('Matched Region')
+        cv2.destroyWindow(ZOOM_WINDOW_NAME)
+
+    # 画像にマウスを置いたら赤枠が差分にさし変わる
+    if event == cv2.EVENT_MOUSEMOVE:
+        image_changed = False
+        for diff in diff_list:
+            dx, dy, dw, dh = diff
+            if dx < x < dx + dw and dy < y < dy + dh:
+                image1[dy:dy+dh, dx:dx+dw] = image2[dy:dy+dh, dx:dx+dw]
+                image_changed = True
+                break
+
+        if not image_changed:
+            image1[:] = original_image[:]
+
+        cv2.imshow(main.WINDOW_NAME, image1)
+        image_changed = False
+
+
+def on_zoomed_mouse(event, x, y, flags, param):
+    zoomed_img1, zoomed_img2 = param
+
+    # mouseを置いたら画像を差し替えて、クリックしたら戻す
+    if event == cv2.EVENT_MOUSEMOVE:
+        cv2.imshow(ZOOM_WINDOW_NAME, zoomed_img2)
+    elif event == cv2.EVENT_LBUTTONDOWN:
+        cv2.imshow(ZOOM_WINDOW_NAME, zoomed_img1)
 
 
 
-
-def displayGrayScale(img1, img2):
+def displaySideBySide(img1, img2):
     h1, w1 = img1.shape[:2]
     h2, w2 = img2.shape[:2]
             
@@ -54,30 +75,10 @@ def displayGrayScale(img1, img2):
     cv2.destroyAllWindows()
 
 
-def displaySideBySide(img1, img2):
-    # 画像の高さを揃える
-    h1, w1 = img1.shape[:2]
-    h2, w2 = img2.shape[:2]
-    h = max(h1, h2)
-
-    # 高さが足りない方に余白を追加
-    if h1 < h:
-        img1 = np.pad(img1, ((0, h - h1), (0, 0), (0, 0)), mode='constant', constant_values=255)
-    elif h2 < h:
-        img2 = np.pad(img2, ((0, h - h2), (0, 0), (0, 0)), mode='constant', constant_values=255)
- 
-    # 2つの画像を横に連結
-    combined = np.hstack((img1, img2))
-
-    # 結合した画像を表示
-    cv2.imshow('Images Side by Side', combined)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-
 
 def displayImage(img):
-    # 結合した画像を表示
-    cv2.imshow(main.WINDOW_NAME, img)
-    cv2.waitKey(0)
+    while True:
+        cv2.imshow(main.WINDOW_NAME, img)
+        if cv2.waitKey(1) & 0xFF == 27:
+            break
     cv2.destroyAllWindows()

@@ -49,7 +49,7 @@ def outputDiff(path1, path2):
 
     # 差分検出
     diff_img = dd.diffDetect(img1, img2)
-    diff_img = dd.ssimDiffDetect(img1, img2)
+    #diff_img = dd.ssimDiffDetect(img1, img2)
     #diff_img = dd.backgroundDiffDetect(img1, img2)
 
     # モルフォロジー演算
@@ -63,7 +63,7 @@ def outputDiff(path1, path2):
     cv2.imwrite(os.path.join(OUTPUT_PATH, 'circle_' + path1), circle_img)
 
     # イベント登録
-    cv2.setMouseCallback(WINDOW_NAME, win_utils.on_mouse, param=(circle_img, img2, diff_list))
+    cv2.setMouseCallback(WINDOW_NAME, win_utils.on_mouse, param=(circle_img.copy(), circle_img, cv2.cvtColor(img2, cv2.COLOR_GRAY2BGR), diff_list))
 
     # 画像表示
     win_utils.displayImage(circle_img)
