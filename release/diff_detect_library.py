@@ -6,12 +6,6 @@ import window_utils as win_utils
 from skimage.metrics import structural_similarity as ssim
 
 def diffDetect(img1, img2):
-    # コントラスト調整
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
-    img1 = clahe.apply(img1)
-    img2 = clahe.apply(img2)
-    #win_utils.displaySideBySide(img1, img2)
-
     #画像を引き算
     img_diff = cv2.absdiff(img1, img2)
 
@@ -35,12 +29,6 @@ def diffDetect(img1, img2):
     return img_th
 
 def sandwichDiffDetect(img1, img2):
-    # コントラスト調整
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
-    img1 = clahe.apply(img1)
-    img2 = clahe.apply(img2)
-    #win_utils.displaySideBySide(img1, img2)
-
     #画像を引き算
     img_diff = cv2.absdiff(img1, img2)
 
@@ -59,12 +47,6 @@ def sandwichDiffDetect(img1, img2):
     return img_th
 
 def adaptiveDiffDetect(img1, img2):
-    # コントラスト調整
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
-    img1 = clahe.apply(img1)
-    img2 = clahe.apply(img2)
-    #win_utils.displaySideBySide(img1, img2)
-
     #画像を引き算
     img_diff = cv2.absdiff(img1, img2)
 

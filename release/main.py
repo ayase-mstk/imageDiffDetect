@@ -1,6 +1,8 @@
 import cv2
 import os
 
+import pre_process as pre 
+import post_process as post
 import image_utils as img_utils
 import window_utils as win_utils
 import diff_detect_library as dd
@@ -28,25 +30,19 @@ def outputDiff(path1, path2):
     img2 = cv2.resize(ori2, (window_width, window_height), interpolation=cv2.INTER_LINEAR)
 
     # noise 除去
-    img1, img2 = img_utils.removeNoiseBefore(img1, img2)
-
-    # gray scale
-    #img1, img2 = img_utils.CIEXYZ(img1, img2)
+    img1, img2 = pre.removeNoiseBefore(img1, img2)
 
     # alignment
-    img1 = img_utils.alignImage(img1, img2)
+    img1 = pre.alignImage(img1, img2)
 
     # resize
     #img1, img2 = img_utils.resizeImages(img1, img2)
 
-    # エッジ強調処理
-    #img1, img2 = img_utils.edgeEnhance(img1, img2)
+    # gray scale
+    gray1, gray2 = pre.CIEXYZ(img1, img2)
 
-    # ヒストグラム均質化
-    #img1, img2 = img_utils.equalizeHistogram(img1, img2)
-
-    #win_utils.displaySideBySide(img1, img2)
-    gray1, gray2 = img_utils.CIEXYZ(img1, img2)
+    # コントラスト調整
+    gray1, gray2 = pre.adjustContrastImages(gray1, gray2)
 
     # 差分検出
     diff_img = dd.diffDetect(gray1, gray2)
@@ -55,8 +51,11 @@ def outputDiff(path1, path2):
     #diff_img = dd.ssimDiffDetect(img1, img2)
     #diff_img = dd.backgroundDiffDetection(gray1, gray2)
 
+    # エッジ強調処理
+    #img1, img2 = post.edgeEnhance(img1, img2)
+
     # モルフォロジー演算
-    closed_img = img_utils.morphologyRemoveNoise(diff_img)
+    closed_img = post.morphologyRemoveNoise(diff_img)
 
     # 色付け
     highlighted_img = img_utils.highlightDiff(img1, closed_img)
@@ -80,6 +79,7 @@ def main():
     outputDiff('image3.png', 'image4.png')
     outputDiff('door1.jpg', 'door2.jpg')
     outputDiff('desk1.jpeg', 'desk2.jpeg')
+    outputDiff('chess_1.png', 'chess_2.png')
 
 if __name__ == "__main__":
     if not os.path.exists(OUTPUT_PATH):
