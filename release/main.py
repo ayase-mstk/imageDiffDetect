@@ -57,7 +57,9 @@ def outputDiff(path1, path2):
 
     # 色付け
     highlighted_img = img_utils.highlightDiff(img1, closed_img)
-    circle_img, diff_list = img_utils.markCircle(img1, closed_img)
+    #circle_img, diff_list = img_utils.markCircle(img1, closed_img)
+    #circle_img, diff_list = img_utils.markShape(img1, closed_img, 'circle')
+    circle_img, diff_list = img_utils.markShape(img1, closed_img)
 
     cv2.imwrite(os.path.join(OUTPUT_PATH, 'highlight_' + path1), highlighted_img)
     cv2.imwrite(os.path.join(OUTPUT_PATH, 'circle_' + path1), circle_img)

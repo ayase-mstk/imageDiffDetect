@@ -155,32 +155,80 @@ def highlightDiff(img1, closed_img):
 
 
 def markCircle(img1, closed_img):
+    min_area = 51
+    min_size = 10 
     #輪郭を検出
     contours, hierarchy = cv2.findContours(closed_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     img1_color = cv2.cvtColor(img1, cv2.COLOR_GRAY2BGR)
 
-     # グルーピング処理
-    min_area = 51
+    # グルーピング処理
     grouped_contours = []
     for cnt in contours:
         if cv2.contourArea(cnt) > min_area:
             grouped_contours.append(cnt)
 
-    # 閾値以上の差分を四角で囲う
-    # 差分のリストを作成
-    min_size = 10 
+    # 閾値以上の差分を円で囲い,差分のリストを作成
     diff_list = []
     #for _, cnt in enumerate(contours):
     for cnt in grouped_contours:
-        x, y, width, height = cv2.boundingRect(cnt)
+        (x, y), radius = cv2.minEnclosingCircle(cnt)
+        center = (int(x), int(y))
+        radius = int(radius)
         area = cv2.contourArea(cnt)
-        if area > min_area and (width > min_size or height > min_size):
-            cv2.rectangle(img1_color, (x, y), (x+width, y+height), (0, 0, 255), 3)
-            diff_list.append((x,y,width,height))
+        if area > min_area and radius > min_size // 2:
+            cv2.circle(img1_color, center, radius, (0, 255, 0), 3)
+            diff_list.append((int(x-radius), int(y-radius), int(radius*2), int(radius*2)))
 
     #画像を生成
     return img1_color, diff_list
+
+
+def markShape(img1, closed_img, shape='rounded_rect'):
+    contours, _ = cv2.findContours(closed_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    img1_color = cv2.cvtColor(img1, cv2.COLOR_GRAY2BGR)
+
+    min_area = 51
+    min_size = 10
+    diff_list = []
+
+    for cnt in contours:
+        area = cv2.contourArea(cnt)
+        if area > min_area:
+            if shape == 'circle':
+                (x, y), radius = cv2.minEnclosingCircle(cnt)
+                center = (int(x), int(y))
+                radius = int(radius)
+                area = cv2.contourArea(cnt)
+                if radius > min_size // 2:
+                    cv2.circle(img1_color, center, radius, (0, 255, 0), 3)
+                    diff_list.append((int(x-radius), int(y-radius), int(radius*2), int(radius*2)))
+            elif shape == 'rounded_rect':
+                x, y, w, h = cv2.boundingRect(cnt)
+                if w > min_size or h > min_size:
+                    radius = int(min(w, h) * 0.1)  # 角の丸みの半径（調整可能）
+                    draw_rounded_rectangle(img1_color, (x, y), (x+w, y+h), (0, 255, 0), 3, radius)
+                    diff_list.append((x, y, w, h))
+
+    return img1_color, diff_list
+
+
+
+def draw_rounded_rectangle(img, pt1, pt2, color, thickness, radius):
+    x1, y1 = pt1
+    x2, y2 = pt2
+
+    # 角丸の四角形を描画
+    cv2.line(img, (x1 + radius, y1), (x2 - radius, y1), color, thickness)
+    cv2.line(img, (x1 + radius, y2), (x2 - radius, y2), color, thickness)
+    cv2.line(img, (x1, y1 + radius), (x1, y2 - radius), color, thickness)
+    cv2.line(img, (x2, y1 + radius), (x2, y2 - radius), color, thickness)
+
+    # 四隅に円弧を描画
+    cv2.ellipse(img, (x1 + radius, y1 + radius), (radius, radius), 180, 0, 90, color, thickness)
+    cv2.ellipse(img, (x2 - radius, y1 + radius), (radius, radius), 270, 0, 90, color, thickness)
+    cv2.ellipse(img, (x1 + radius, y2 - radius), (radius, radius), 90, 0, 90, color, thickness)
+    cv2.ellipse(img, (x2 - radius, y2 - radius), (radius, radius), 0, 0, 90, color, thickness)
 
 
 
