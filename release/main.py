@@ -31,7 +31,7 @@ def outputDiff(path1, path2):
     img1, img2 = img_utils.removeNoiseBefore(img1, img2)
 
     # gray scale
-    img1, img2 = img_utils.CIEXYZ(img1, img2)
+    #img1, img2 = img_utils.CIEXYZ(img1, img2)
 
     # alignment
     img1 = img_utils.alignImage(img1, img2)
@@ -46,11 +46,14 @@ def outputDiff(path1, path2):
     #img1, img2 = img_utils.equalizeHistogram(img1, img2)
 
     #win_utils.displaySideBySide(img1, img2)
+    gray1, gray2 = img_utils.CIEXYZ(img1, img2)
 
     # 差分検出
-    diff_img = dd.diffDetect(img1, img2)
+    diff_img = dd.diffDetect(gray1, gray2)
+    #diff_img = dd.sandwichDiffDetect(gray1, gray2)
+    #diff_img = dd.adaptiveDiffDetect(gray1, gray2)
     #diff_img = dd.ssimDiffDetect(img1, img2)
-    #diff_img = dd.backgroundDiffDetect(img1, img2)
+    #diff_img = dd.backgroundDiffDetection(gray1, gray2)
 
     # モルフォロジー演算
     closed_img = img_utils.morphologyRemoveNoise(diff_img)
@@ -65,7 +68,8 @@ def outputDiff(path1, path2):
     cv2.imwrite(os.path.join(OUTPUT_PATH, 'circle_' + path1), circle_img)
 
     # イベント登録
-    cv2.setMouseCallback(WINDOW_NAME, win_utils.on_mouse, param=(circle_img.copy(), circle_img, cv2.cvtColor(img2, cv2.COLOR_GRAY2BGR), diff_list))
+    #cv2.setMouseCallback(WINDOW_NAME, win_utils.on_mouse, param=(circle_img.copy(), circle_img, cv2.cvtColor(img2, cv2.COLOR_GRAY2BGR), diff_list))
+    cv2.setMouseCallback(WINDOW_NAME, win_utils.on_mouse, param=(circle_img.copy(), circle_img, img2, diff_list))
 
     # 画像表示
     win_utils.displayImage(circle_img)

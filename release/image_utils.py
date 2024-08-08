@@ -90,7 +90,7 @@ def alignImage(img1, img2):
     # ホモグラフィー行列に基づき、画像の変換
     if len(img2.shape) == 2:
         height, width = img2.shape
-    elif len(img2.shap) == 3:
+    elif len(img2.shape) == 3:
         height, width, _ = img2.shape
     aligned_img = cv2.warpPerspective(img1, H, (width, height))
 
@@ -115,7 +115,7 @@ def edgeEnhance(img1, img2):
 
 def morphologyRemoveNoise(binary_mask):
     # ノイズ除去のためのカーネル（サイズは適宜調整）
-    kernel = np.ones((3, 3), np.uint8)
+    kernel = np.ones((4, 4), np.uint8)
 
     # モルフォロジー演算（オープニング）
     opened = cv2.morphologyEx(binary_mask, cv2.MORPH_OPEN, kernel)
@@ -128,7 +128,8 @@ def morphologyRemoveNoise(binary_mask):
 
 
 def highlightDiff(img1, closed_img):
-    img1_color = cv2.cvtColor(img1, cv2.COLOR_GRAY2BGR)
+    #img1_color = cv2.cvtColor(img1, cv2.COLOR_GRAY2BGR)
+    img1_color = img1
 
     # カラーマスクを使って赤色を付ける
     color_diff = np.zeros_like(img1_color)
@@ -160,7 +161,8 @@ def markCircle(img1, closed_img):
     #輪郭を検出
     contours, hierarchy = cv2.findContours(closed_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    img1_color = cv2.cvtColor(img1, cv2.COLOR_GRAY2BGR)
+    #img1_color = cv2.cvtColor(img1, cv2.COLOR_GRAY2BGR)
+    img1_color = img1
 
     # グルーピング処理
     grouped_contours = []
@@ -186,7 +188,8 @@ def markCircle(img1, closed_img):
 
 def markShape(img1, closed_img, shape='rounded_rect'):
     contours, _ = cv2.findContours(closed_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    img1_color = cv2.cvtColor(img1, cv2.COLOR_GRAY2BGR)
+    #img1_color = cv2.cvtColor(img1, cv2.COLOR_GRAY2BGR)
+    img1_color = img1
 
     min_area = 51
     min_size = 10
