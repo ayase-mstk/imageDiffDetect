@@ -2,10 +2,11 @@ import cv2
 import sys
 import os
 import numpy as np
+
 import window_utils as win_utils
 
 
-def calcBalancedSize(img, max_size=800):
+def calcBalancedSize(img, max_size=1000):
     # 画像の元のサイズを取得
     height, width = img.shape[:2]
 

@@ -5,11 +5,26 @@ import numpy as np
 ノイズ処理
 """
 
-def removeNoiseBefore(img1, img2):
-    denoised_img1 = cv2.bilateralFilter(img1, d=3, sigmaColor=100, sigmaSpace=100)
-    denoised_img2 = cv2.bilateralFilter(img2, d=3, sigmaColor=100, sigmaSpace=100)
+def bilateralNoiseFilter(img1, img2):
+    denoised_img1 = cv2.bilateralFilter(img1, d=5, sigmaColor=100, sigmaSpace=100)
+    denoised_img2 = cv2.bilateralFilter(img2, d=5, sigmaColor=100, sigmaSpace=100)
 
     return denoised_img1, denoised_img2
+
+def gaussianNoiseFilter(img1, img2, ksize=5):
+    # ガウシアンフィルタの適用
+    gaus_img1 = cv2.GaussianBlur(img1, (ksize, ksize), 0)
+    gaus_img2 = cv2.GaussianBlur(img2, (ksize, ksize), 0)
+
+    return gaus_img1, gaus_img2
+
+def medianNoiseFilter(img1, img2, ksize=5):
+    # メディアンフィルタの適用
+    median1 = cv2.medianBlur(img1, ksize)
+    median2 = cv2.medianBlur(img2, ksize)
+
+    return median1, median2
+
 
 """
 グレースケール変換
@@ -33,29 +48,20 @@ def deColor(img1, img2):
     return de_image1, de_image2
 
 def averageGrayScale(img1, img2):
-    # 画像の高さ、幅、チャンネル数を取得
-    h1, w1, channels1 = img1.shape
-    h2, w2, channels2 = img2.shape
+        # 画像のサイズを取得
+    h1, w1, _ = img1.shape
+    h2, w2, _ = img2.shape
 
-    # 平均法でグレースケール変換
+    # グレースケール画像の初期化
     gray_img1 = np.zeros((h1, w1), dtype=np.uint8)
     gray_img2 = np.zeros((h2, w2), dtype=np.uint8)
 
-    for i in range(h1):
-        for j in range(w1):
-            # 各ピクセルのRGB値を取得し、平均を計算
-            r, g, b = img1[i, j]
-            grayscale_value = int((r + g + b) / 3)
-            gray_img1[i, j] = grayscale_value
-
-    for i in range(h2):
-        for j in range(w2):
-            # 各ピクセルのRGB値を取得し、平均を計算
-            r, g, b = img2[i, j]
-            grayscale_value = int((r + g + b) / 3)
-            gray_img2[i, j] = grayscale_value
+    # 平均法でグレースケール変換
+    gray_img1 = np.mean(img1, axis=2).astype(np.uint8)
+    gray_img2 = np.mean(img2, axis=2).astype(np.uint8)
 
     return gray_img1, gray_img2
+
 
 def grayScaleGammaCorrection(img_bgr1, img_bgr2):
     gamma22LUT  = np.array([pow(x/255.0, 2.2) * 255 for x in range(256)], dtype='uint8')
@@ -86,9 +92,11 @@ def grayScaleGammaCorrection(img_bgr1, img_bgr2):
 def alignImage(img1, img2):
     # AKAZE特徴点検出器の作成と特徴点の検出:
     detector = cv2.AKAZE_create()
+    #detector = cv2.ORB_create()
     keypoints1, descriptors1 = detector.detectAndCompute(img1, None)
     keypoints2, descriptors2 = detector.detectAndCompute(img2, None)
 
+    # 特徴点表示
     #match_img = cv2.drawKeypoints(img1, keypoints1, None, color=(0,255,0), flags=0)
     #cv2.imshow('keypoints', match_img)
                     

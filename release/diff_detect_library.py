@@ -1,9 +1,10 @@
 import cv2
 import numpy as np
+from skimage.metrics import structural_similarity as ssim
+
 import image_utils as img_utils
 import window_utils as win_utils
 
-from skimage.metrics import structural_similarity as ssim
 
 def diffDetect(img1, img2):
     #画像を引き算
@@ -88,3 +89,9 @@ def backgroundDiffDetection(img1, img2):
     result[mask == 1] = 0
 
     return result
+
+def histogramComparison(img1, img2):
+    hist1 = cv2.calcHist([img1], [0], None, [256], [0, 256])
+    hist2 = cv2.calcHist([img2], [0], None, [256], [0, 256])
+    diff = cv2.compareHist(hist1, hist2, cv2.HISTCMP_BHATTACHARYYA)
+    return diff
