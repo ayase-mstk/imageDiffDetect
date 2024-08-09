@@ -27,6 +27,36 @@ def CIEXYZ(img1, img2):
 
     return y_channel1, y_channel2
 
+def deColor(img1, img2):
+    de_image1, _ = cv2.decolor(img1)
+    de_image2, _ = cv2.decolor(img2)
+    return de_image1, de_image2
+
+def averageGrayScale(img1, img2):
+    # 画像の高さ、幅、チャンネル数を取得
+    h1, w1, channels1 = img1.shape
+    h2, w2, channels2 = img2.shape
+
+    # 平均法でグレースケール変換
+    gray_img1 = np.zeros((h1, w1), dtype=np.uint8)
+    gray_img2 = np.zeros((h2, w2), dtype=np.uint8)
+
+    for i in range(h1):
+        for j in range(w1):
+            # 各ピクセルのRGB値を取得し、平均を計算
+            r, g, b = img1[i, j]
+            grayscale_value = int((r + g + b) / 3)
+            gray_img1[i, j] = grayscale_value
+
+    for i in range(h2):
+        for j in range(w2):
+            # 各ピクセルのRGB値を取得し、平均を計算
+            r, g, b = img2[i, j]
+            grayscale_value = int((r + g + b) / 3)
+            gray_img2[i, j] = grayscale_value
+
+    return gray_img1, gray_img2
+
 def grayScaleGammaCorrection(img_bgr1, img_bgr2):
     gamma22LUT  = np.array([pow(x/255.0, 2.2) * 255 for x in range(256)], dtype='uint8')
     gamma045LUT = np.array([pow(x/255.0, 1.0/2.2) * 255 for x in range(256)], dtype='uint8')
@@ -149,3 +179,28 @@ def adjustContrastBySegments(img):
 
 def adjustContrastImages(img1, img2):
     return adjustContrastBySegments(img1), adjustContrastBySegments(img2)
+
+def eqHistImages(img1, img2):
+    return eqHist(img1), eqHist(img2)
+
+def claheImages(img1, img2):
+    return creClahe(img1), creClahe(img2)
+
+def creClahe(img):
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    clahe_img = clahe.apply(img)
+
+    # ずれによる黒い部分はマスクする
+    mask = (img == 0).astype(np.uint8)
+    clahe_img[mask == 1] = 0
+
+    return clahe_img 
+
+def eqHist(img):
+    eq_img = cv2.equalizeHist(img)
+
+    # ずれによる黒い部分はマスクする
+    mask = (img == 0).astype(np.uint8)
+    eq_img[mask == 1] = 0
+
+    return eq_img 
