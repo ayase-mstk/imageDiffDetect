@@ -1,19 +1,36 @@
-# image_utils.py
-
 import cv2
 import sys
 import os
 import numpy as np
+import window_utils as win_utils
 
-def resizeImages(img1, img2):
-    height = img1.shape[0]
-    width = img1.shape[1]
-    img_size = (int(width), int(height))
 
-    # 画像をリサイズする
-    img2 = cv2.resize(img2, img_size)
+def calcBalancedSize(img, max_size=800):
+    # 画像の元のサイズを取得
+    height, width = img.shape[:2]
+
+    # 長い方がmax_sizeになるようにリサイズ比を計算
+    if width > height:
+        new_width = max_size
+        new_height = int((new_width / width) * height)
+    else:
+        new_height = max_size
+        new_width = int((new_height / height) * width)
+
+    return new_height, new_width
+
+
+def resizeImages(ori1, ori2):
+    win_h, win_w = calcBalancedSize(ori1)
+    win_utils.settingWindow(win_h, win_w)
+
+    # img resize
+    img1 = cv2.resize(ori1, (win_w, win_h), interpolation=cv2.INTER_LINEAR)
+    img2 = cv2.resize(ori2, (win_w, win_h), interpolation=cv2.INTER_LINEAR)
+    win_utils.displaySideBySide(img1, img2, 'original')
 
     return img1, img2
+
 
 def highlightDiff(img1, closed_img):
     #img1_color = cv2.cvtColor(img1, cv2.COLOR_GRAY2BGR)
@@ -73,14 +90,14 @@ def markShape(img1, closed_img, shape='rounded_rect'):
                 x, y, w, h = cv2.boundingRect(cnt)
                 if w > min_size or h > min_size:
                     radius = int(min(w, h) * 0.1)  # 角の丸みの半径（調整可能）
-                    draw_rounded_rectangle(img1_color, (x, y), (x+w, y+h), (0, 255, 0), 3, radius)
+                    drawRoundedRectangle(img1_color, (x, y), (x+w, y+h), (0, 255, 0), 3, radius)
                     diff_list.append((x, y, w, h))
 
     return img1_color, diff_list
 
 
 
-def draw_rounded_rectangle(img, pt1, pt2, color, thickness, radius):
+def drawRoundedRectangle(img, pt1, pt2, color, thickness, radius):
     x1, y1 = pt1
     x2, y2 = pt2
 
@@ -95,19 +112,3 @@ def draw_rounded_rectangle(img, pt1, pt2, color, thickness, radius):
     cv2.ellipse(img, (x2 - radius, y1 + radius), (radius, radius), 270, 0, 90, color, thickness)
     cv2.ellipse(img, (x1 + radius, y2 - radius), (radius, radius), 90, 0, 90, color, thickness)
     cv2.ellipse(img, (x2 - radius, y2 - radius), (radius, radius), 0, 0, 90, color, thickness)
-
-
-
-def calcBalancedSize(img, max_size=800):
-    # 画像の元のサイズを取得
-    height, width = img.shape[:2]
-
-    # 長い方がmax_sizeになるようにリサイズ比を計算
-    if width > height:
-        new_width = max_size
-        new_height = int((new_width / width) * height)
-    else:
-        new_height = max_size
-        new_width = int((new_height / height) * width)
-
-    return new_height, new_width

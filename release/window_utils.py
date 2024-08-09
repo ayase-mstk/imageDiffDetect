@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import argparse
 import main
 
 
@@ -51,6 +52,9 @@ def on_zoomed_mouse(event, x, y, flags, param):
 
 
 def displaySideBySide(img1, img2, name='SideBySide'):
+    if not isDebugOn():
+        return
+
     h1, w1 = img1.shape[:2]
     h2, w2 = img2.shape[:2]
             
@@ -76,9 +80,39 @@ def displaySideBySide(img1, img2, name='SideBySide'):
 
 
 
-def displayImage(img, name=main.WINDOW_NAME):
+def displayImage(img, name=main.WINDOW_NAME, param=None):
+    if not isDebugOn() and name != main.WINDOW_NAME:
+        return
+
+
     while True:
         cv2.imshow(name, img)
+        if name == main.WINDOW_NAME:
+            cv2.setMouseCallback(main.WINDOW_NAME, on_mouse, param=param)
         if cv2.waitKey(1) & 0xFF == 27:
             break
     cv2.destroyAllWindows()
+
+
+def isDebugOn():
+    # ArgumentParserオブジェクトの作成
+    parser = argparse.ArgumentParser(description="Script with a flag.")
+
+    # フラッグオプションを追加
+    parser.add_argument('--debug', action='store_true', help='Enable the global flag')
+
+    # 引数をパース
+    args = parser.parse_args()
+
+    # フラッグが指定されていればグローバル変数をTrueに設定
+    if args.debug:
+        return True
+    return False
+
+
+def settingWindow(win_h, win_w):
+    # window 作成
+    cv2.namedWindow(main.WINDOW_NAME)
+    # window size 指定
+    cv2.resizeWindow(main.WINDOW_NAME, win_w, win_h)
+
